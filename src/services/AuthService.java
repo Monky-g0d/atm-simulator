@@ -1,5 +1,7 @@
 package service;
 
+import exceptions.ATMException;
+import model.Account;
 import model.User;
 import java.util.HashMap;
 
@@ -33,5 +35,19 @@ public class AuthService {
 
             return null;
         }
+    }
+
+    public User register(HashMap<String, User> users, String cardNumber, String pin) throws ATMException {
+        if (users == null) {
+            throw new ATMException("Список пользователей не инициализирован");
+        }
+
+        if (users.containsKey(cardNumber)) {
+            throw new ATMException("Пользователь с таким номером карты уже существует");
+        }
+
+        User user = new User(cardNumber, pin, new Account(0.0));
+        users.put(cardNumber, user);
+        return user;
     }
 }

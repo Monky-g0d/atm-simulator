@@ -1,4 +1,5 @@
 package model;
+
 import java.time.LocalDateTime;
 
 public class Transaction {
@@ -7,9 +8,13 @@ public class Transaction {
     private LocalDateTime date;
 
     public Transaction(String type, double amount) {
+        this(type, amount, LocalDateTime.now());
+    }
+
+    public Transaction(String type, double amount, LocalDateTime date) {
         this.type = type;
         this.amount = amount;
-        this.date = LocalDateTime.now();
+        this.date = date;
     }
 
     public String getType() {
