@@ -1,6 +1,7 @@
-package service;
+package services;
 
 import exceptions.ATMException;
+import models.User;
 
 public class ValidationService {
 
@@ -46,4 +47,3 @@ public class ValidationService {
         }
     }
 }
-

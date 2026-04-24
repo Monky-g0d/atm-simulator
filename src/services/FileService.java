@@ -1,9 +1,9 @@
-package service;
+package services;
 
 import exceptions.ATMException;
-import model.Account;
-import model.Transaction;
-import model.User;
+import models.Account;
+import models.Transaction;
+import models.User;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -128,7 +128,8 @@ public class FileService {
                 writer.newLine();
 
                 for (Transaction transaction : transactions) {
-                    writer.write("tx=" + transaction.getType() + "|" + transaction.getAmount() + "|" + transaction.getDate());
+                    writer.write("tx=" + transaction.getType() + "|" + transaction.getAmount() + "|"
+                            + transaction.getDate());
                     writer.newLine();
                 }
 
@@ -182,5 +183,3 @@ public class FileService {
         }
     }
 }
-
-

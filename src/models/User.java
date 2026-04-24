@@ -1,4 +1,4 @@
-package model;
+package models;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +11,10 @@ public class User {
     private int failedAttempts;
     private Account account;
     private final List<Transaction> transactions;
+
+    public User(String cardNumber, String pin) {
+        this(cardNumber, pin, new Account(0.0));
+    }
 
     public User(String cardNumber, String pin, Account account) {
         this.cardNumber = cardNumber;

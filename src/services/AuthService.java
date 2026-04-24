@@ -1,12 +1,14 @@
-package service;
+package services;
 
-import exceptions.ATMException;
-import model.Account;
-import model.User;
 import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.util.List;
+import models.User;
+import models.Transaction;
 
 public class AuthService {
 
+    // 1. ЛОГИКА ВХОДА
     public User login(HashMap<String, User> users, String cardNumber, String pin) {
         User user = users.get(cardNumber);
 
@@ -21,33 +23,68 @@ public class AuthService {
         }
 
         if (user.getPin().equals(pin)) {
-            user.setFailedAttempts(0);
+            user.setFailedAttempts(0); 
             return user;
         } else {
-            user.setFailedAttempts(user.getFailedAttempts() + 1);
+            int currentAttempts = user.getFailedAttempts() + 1;
+            user.setFailedAttempts(currentAttempts);
 
-            if (user.getFailedAttempts() >= 3) {
+            if (currentAttempts >= 3) {
                 user.setBlocked(true);
                 System.out.println("Карта заблокирована!");
             } else {
-                System.out.println("Неверный PIN");
+                System.out.println("Неверный PIN. Осталось попыток: " + (3 - currentAttempts));
             }
-
             return null;
         }
     }
 
-    public User register(HashMap<String, User> users, String cardNumber, String pin) throws ATMException {
-        if (users == null) {
-            throw new ATMException("Список пользователей не инициализирован");
+    // 2. ФИНАНСОВЫЕ ОПЕРАЦИИ
+    public void deposit(User user, double amount) {
+        if (amount > 0) {
+            double newBalance = user.getAccount().getBalance() + amount;
+            user.getAccount().setBalance(newBalance);
+            addTransaction(user, "Пополнение", amount);
+            System.out.println("Баланс пополнен.");
         }
+    }
 
-        if (users.containsKey(cardNumber)) {
-            throw new ATMException("Пользователь с таким номером карты уже существует");
+    public void withdraw(User user, double amount) {
+        if (amount > 0 && user.getAccount().getBalance() >= amount) {
+            double newBalance = user.getAccount().getBalance() - amount;
+            user.getAccount().setBalance(newBalance);
+            addTransaction(user, "Снятие наличных", amount);
+            System.out.println("Снятие выполнено.");
+        } else {
+            System.out.println("Ошибка: недостаточно средств.");
         }
+    }
 
-        User user = new User(cardNumber, pin, new Account(0.0));
-        users.put(cardNumber, user);
-        return user;
+    public void transfer(User sender, HashMap<String, User> allUsers, String receiverCard, double amount) {
+        User receiver = allUsers.get(receiverCard);
+        
+        if (receiver != null && !sender.getCardNumber().equals(receiverCard) && amount > 0) {
+            if (sender.getAccount().getBalance() >= amount) {
+                sender.getAccount().setBalance(sender.getAccount().getBalance() - amount);
+                receiver.getAccount().setBalance(receiver.getAccount().getBalance() + amount);
+                
+                addTransaction(sender, "Перевод на " + receiverCard, amount);
+                addTransaction(receiver, "Приход от " + sender.getCardNumber(), amount);
+                System.out.println("Перевод выполнен.");
+            } else {
+                System.out.println("Недостаточно средств.");
+            }
+        }
+    }
+
+    // 3. ИСТОРИЯ
+    private void addTransaction(User user, String type, double amount) {
+        List<Transaction> history = user.getAccount().getHistory();
+        
+        history.add(new Transaction(type, amount, LocalDateTime.now()));
+
+        if (history.size() > 10) {
+            history.remove(0);
+        }
     }
 }
